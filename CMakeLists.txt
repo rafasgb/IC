@@ -28,7 +28,7 @@ set(INCLUDE_FILES WatershedImage.cpp WatershedImage.h SegmentedImage.cpp Segment
 
 add_executable(Watershed main.cpp ${INCLUDE_FILES})
 add_executable(Interpolation1 Tests/Interpolation1/main.cpp ${INCLUDE_FILES} )
-add_executable(Interpolation2 Tests/Interpolation2/main.cpp ${INCLUDE_FILES})
+add_executable(Interpolation2 Tests/Interpolation2/main.cpp ${INCLUDE_FILES} Tests/Interpolation2/Segmentation.h Tests/Interpolation2/Segmentation.cpp)
 TARGET_LINK_LIBRARIES(Watershed FeatureExtractors ComplexNetwork Utilities Qt5::Core Qt5::Widgets Qt5::OpenGL  ${OpenCV_LIBS}  ${VTK_LIBRARIES})
 TARGET_LINK_LIBRARIES(Interpolation1 FeatureExtractors ComplexNetwork Utilities Qt5::Core Qt5::Widgets Qt5::OpenGL  ${OpenCV_LIBS}  ${VTK_LIBRARIES})
 TARGET_LINK_LIBRARIES(Interpolation2 FeatureExtractors ComplexNetwork Utilities Qt5::Core Qt5::Widgets Qt5::OpenGL  ${OpenCV_LIBS}  ${VTK_LIBRARIES})

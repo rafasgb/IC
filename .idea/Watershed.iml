@@ -9,7 +9,9 @@
       <sourceFolder url="file://$MODULE_DIR$/main.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/FireflyOptimizator.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/FireflyOptimizator.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Tests/Interpolation2/Segmentation.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Tests/Interpolation2/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Tests/Interpolation2/Segmentation.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Tests/Interpolation1/main.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/WatershedImage.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
