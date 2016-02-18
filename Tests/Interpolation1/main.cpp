@@ -37,7 +37,7 @@
 #include <qregularexpression.h>
 #include "../../SegmentedImage.h"
 #include "../../SegmentationEvaluator.h"
-#include "../../FireflyOptimizator.h"
+#include "../OldFireflyOptimizator.h"
 #include <math.h>
 using namespace std;
 
@@ -129,7 +129,7 @@ Point2i interpolate(pair<Point2i,Point2i> p, float amount)
 int main()
 {
 
-    FireflyOptimizator f(QString("/Users/zulli/Documents/city/sun_abnjbjjzwfckjhyx.jpg"),QString("/Users/zulli/Documents/city/sun_abnjbjjzwfckjhyx.xml"),5,10,100,0.0015);
+    OldFireflyOptimizator f(QString("/Users/zulli/Documents/city/sun_abnjbjjzwfckjhyx.jpg"),QString("/Users/zulli/Documents/city/sun_abnjbjjzwfckjhyx.xml"),5,10,100,0.0015);
     f.run();
 
     return 0;

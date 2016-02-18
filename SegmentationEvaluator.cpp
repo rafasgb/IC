@@ -113,7 +113,7 @@ double SegmentationEvaluator::evaluate(QList<Region> *regionsPR, QList<Region>* 
         //evaluation.insert(evaluation.end(),make_pair(rPR,maxEvaluation));
     }
 
-    return finalEvaluation/i;
+    return finalEvaluation;
 
 
 

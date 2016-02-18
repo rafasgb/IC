@@ -32,15 +32,14 @@ typedef map<Index, float> Matrix;
 class Segmentation {
 private:
 
-
+    QList<Region> regions;
     vector<char> color;
     vector<Vec3b*> listaCor;
     RNG rng;
 
     //vector<vector< float>> matrixAdj;
 
-    int width, height;
-    int size;
+
     QImageCV image;
     QString file;
     Mat mask;
@@ -48,7 +47,11 @@ private:
 public:
 
     Matrix matrixAdj;
+    int width, height;
+    int size;
 
+
+    Segmentation(){};
     Segmentation(SegmentedImage im, float threshold,vector<Vec3b*>& listaCor );
 
     Segmentation(QString , Matrix ,float ,vector<Vec3b*>&);
@@ -65,6 +68,8 @@ public:
 
     Segmentation interpolate(Segmentation , float );
 
+    Matrix interpolateMatrix(Segmentation , float );
+
     float compara(Segmentation , float );
 
     void dfs_visit(int);
@@ -74,6 +79,7 @@ public:
     void setWeight(unsigned int, unsigned int ,float);
     float findWeight(unsigned int , unsigned int );
     Mat getMask();
+    QList<Region> *getRegions();
 
 };
 

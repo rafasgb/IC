@@ -210,6 +210,21 @@ void Segmentation::makeMask()
                     color[i]='z';
                 }
             }
+
+            Mat temp(mask.size(),CV_8UC1);
+
+            temp = Scalar::all(0);
+            inRange(mask, *cor, *cor, temp);
+
+            Region r(&image, temp);
+            if (!r.getMask().getBoundary().isEmpty()) {
+                    regions <<r;
+
+
+            }
+
+
+
             //cout<<"\n";
         }
         if(color[i]=='w') {
@@ -316,6 +331,12 @@ float Segmentation::compara(Segmentation b, float tol)
 /// float amount 0.0 a 1.0
 Segmentation Segmentation::interpolate(Segmentation objetivo, float amount)
 {
+    Matrix novo = interpolateMatrix(objetivo,amount);
+    return Segmentation(file,novo,threshold,listaCor);
+}
+
+Matrix Segmentation::interpolateMatrix(Segmentation objetivo, float amount)
+{
 
     Matrix novo;
     for(int i=0;i<size;i++) {
@@ -367,7 +388,7 @@ Segmentation Segmentation::interpolate(Segmentation objetivo, float amount)
 
 
     }
-    return Segmentation(file,novo,threshold,listaCor);
+    return novo;
 }
 
 ///
@@ -435,3 +456,9 @@ void Segmentation::showImageMask(const string s)
 
 }
 
+
+
+QList<Region> * Segmentation::getRegions()
+{
+    return &regions;
+}

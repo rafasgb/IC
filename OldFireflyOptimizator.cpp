@@ -2,7 +2,7 @@
 // Created by Rafael Zulli De Gioia Paiva on 12/12/15.
 //
 
-#include "FireflyOptimizator.h"
+#include "OldFireflyOptimizator.h"
 #include "SegmentationEvaluator.h"
 
 

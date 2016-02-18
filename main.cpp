@@ -34,7 +34,7 @@
 #include <qregularexpression.h>
 #include "SegmentedImage.h"
 #include "SegmentationEvaluator.h"
-#include "FireflyOptimizator.h"
+#include "OldFireflyOptimizator.h"
 
 using namespace cv;
 using namespace std;
@@ -103,9 +103,9 @@ int main() {
         segEvaluate += double(end - begin) / CLOCKS_PER_SEC;
 
 
-        cout<<vl<<endl;
-        if(vl>max)
-            max=vl;
+      //  cout<<vl<<endl;
+       // if(vl>max)
+         //   max=vl;
     }
 
 

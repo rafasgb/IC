@@ -24,11 +24,11 @@ find_package( OpenCV REQUIRED )
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 
-set(INCLUDE_FILES WatershedImage.cpp WatershedImage.h SegmentedImage.cpp SegmentedImage.h SegmentationEvaluator.cpp SegmentationEvaluator.h FireflyOptimizator.cpp FireflyOptimizator.h )
+set(INCLUDE_FILES WatershedImage.cpp WatershedImage.h SegmentedImage.cpp SegmentedImage.h SegmentationEvaluator.cpp SegmentationEvaluator.h )
 
-add_executable(Watershed main.cpp ${INCLUDE_FILES})
-add_executable(Interpolation1 Tests/Interpolation1/main.cpp ${INCLUDE_FILES} )
-add_executable(Interpolation2 Tests/Interpolation2/main.cpp ${INCLUDE_FILES} Tests/Interpolation2/Segmentation.h Tests/Interpolation2/Segmentation.cpp)
+add_executable(Watershed main.cpp ${INCLUDE_FILES} OldFireflyOptimizator.cpp OldFireflyOptimizator.h)
+add_executable(Interpolation1 Tests/Interpolation1/main.cpp ${INCLUDE_FILES} OldFireflyOptimizator.cpp OldFireflyOptimizator.h)
+add_executable(Interpolation2 Tests/Interpolation2/main.cpp ${INCLUDE_FILES} Tests/Interpolation2/Segmentation.h Tests/Interpolation2/Segmentation.cpp Tests/Interpolation2/FireflyOptimizator.h Tests/Interpolation2/FireflyOptimizator.cpp)
 TARGET_LINK_LIBRARIES(Watershed FeatureExtractors ComplexNetwork Utilities Qt5::Core Qt5::Widgets Qt5::OpenGL  ${OpenCV_LIBS}  ${VTK_LIBRARIES})
 TARGET_LINK_LIBRARIES(Interpolation1 FeatureExtractors ComplexNetwork Utilities Qt5::Core Qt5::Widgets Qt5::OpenGL  ${OpenCV_LIBS}  ${VTK_LIBRARIES})
 TARGET_LINK_LIBRARIES(Interpolation2 FeatureExtractors ComplexNetwork Utilities Qt5::Core Qt5::Widgets Qt5::OpenGL  ${OpenCV_LIBS}  ${VTK_LIBRARIES})

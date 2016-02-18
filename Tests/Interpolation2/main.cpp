@@ -14,6 +14,8 @@
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
 #include "../../SegmentedImage.h"
+#include "../../SegmentationEvaluator.h"
+#include "FireflyOptimizator.h"
 #include "Segmentation.h"
 #include <sys/stat.h>
 
@@ -27,9 +29,18 @@ bool DEBUG = true ;
 using namespace cv;
 using namespace std;
 
-
-
 int main()
+{
+    char* filename = (char*)"/Users/zulli/ClionProjects/Watershed/sun.jpg";
+    QString f(filename);
+    SegmentedImage im2("/Users/zulli/Documents/city/sun_abnjbjjzwfckjhyx.jpg","/Users/zulli/Documents/city/sun_abnjbjjzwfckjhyx.xml");
+
+    FireflyOptimizator ff("/Users/zulli/Documents/city/sun_abnjbjjzwfckjhyx.jpg","/Users/zulli/Documents/city/sun_abnjbjjzwfckjhyx.xml",0.7,30,50,0.000000009);
+    ff.run();
+    return 0;
+}
+
+int main2()
 {
     string exp,base ;
     cout<< "Root dir: ";
@@ -56,32 +67,38 @@ int main()
 
 
 
-    for(float t = 0.0;t<=1.1;t+=0.1)
+    for(float t = 0.1;t<=1.1;t+=0.1)
     {
         string st = to_string(t);
         mkdir((path+st).c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
-        Segmentation j(im2, t,listaCor);
-        j.showImageMask(st+" objetivo ");
+        Segmentation objetivo(im2, t,listaCor);
+        objetivo.showImageMask(st+" objetivo ");
 
         //Segmentation a(f, 0.8,listaCor);
         //a.showImageMask("Objetivo");
 
-        imwrite(path+st+"/objetivo.png",j.getMask());
-        Segmentation b(f, t,listaCor);
-        b.showImageMask(st+"Atual");
-        imwrite(path+st+"/inicial.png",b.getMask());
+        imwrite(path+st+"/objetivo.png",objetivo.getMask());
+
+        Segmentation atual(f, t,listaCor);
+        atual.showImageMask(st+"Atual");
+        imwrite(path+st+"/inicial.png",atual.getMask());
         for(int i=1;i<=20;i++)
         {
             float amount = i/20.0;
             string c = to_string(amount);
 
-            Segmentation d = b.interpolate(j,amount);
+            Segmentation d = atual.interpolate(objetivo,amount);
 
             d.showImageMask(st+" - "+c);
-            float por = d.compara(j,1.0/DISCRE)*100;
+            float por = d.compara(objetivo,1.0/DISCRE)*100;
+            SegmentationEvaluator seg;
+            float por2 = seg.evaluate(d.getRegions(),objetivo.getRegions())*100;
             cout<<st<<" Objetivo x "<<amount<<" - "<<por<<"% igual"<<endl;
-            imwrite(path+st+"/"+c+" - "+ to_string(por)+".png",d.getMask());
+            cout<<"Segmentation evaluator "<<por2<<"%"<<endl;
+            imwrite(path+st+"/"+c+" - "+ to_string(por)+" - "+to_string(por2)+".png",d.getMask());
+
+
         }
     }
     waitKey(0);

@@ -4,17 +4,19 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/SegmentationEvaluator.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/SegmentedImage.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/WatershedImage.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/SegmentedImage.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/main.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/FireflyOptimizator.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/FireflyOptimizator.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Tests/Interpolation2/Segmentation.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Tests/Interpolation2/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/WatershedImage.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Tests/Interpolation2/Segmentation.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Tests/Interpolation2/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Tests/Interpolation2/Segmentation.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Tests/Interpolation2/FireflyOptimizator.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Tests/Interpolation2/FireflyOptimizator.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Tests/Interpolation1/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/OldFireflyOptimizator.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/WatershedImage.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/OldFireflyOptimizator.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/SegmentationEvaluator.cpp" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
