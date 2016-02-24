@@ -4,6 +4,13 @@
 
 #include "Segmentation.h"
 
+Segmentation::Segmentation(QString file,Mat mask, float threshold,vector<Vec3b*>& listaCor ):listaCor(listaCor), file(file), threshold(threshold)
+{
+    init();
+    makeRegions(mask);
+    makeMask();
+}
+
 Segmentation::Segmentation(SegmentedImage im, float threshold,vector<Vec3b*>& listaCor ):listaCor(listaCor), file(im.getImagePath()), threshold(threshold)
 {
         init();
@@ -44,7 +51,7 @@ void Segmentation::init()
 
     //Mat out(a.rows/4, a.cols/4, CV_8UC3);
     Mat out;
-    resize(a, out, Size(), 0.25,0.25);
+    resize(a, out, Size(), 1.0,1.0);
 
     this->image = QImageCV(out);
 
@@ -123,7 +130,7 @@ void Segmentation::makeRegions(Mat m) {
 
 
                 if(cor == corViz)
-                    setWeight(i,k,1.0);
+                    setWeight(i,k,1.1*threshold);
                 else
                     setWeight(i,k,0.0);
 

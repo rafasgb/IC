@@ -53,7 +53,7 @@ public:
 
     Segmentation(){};
     Segmentation(SegmentedImage im, float threshold,vector<Vec3b*>& listaCor );
-
+    Segmentation(QString file,Mat mask, float threshold,vector<Vec3b*>& listaCor );
     Segmentation(QString , Matrix ,float ,vector<Vec3b*>&);
     Segmentation(QString , float ,vector<Vec3b*>&) ;
 

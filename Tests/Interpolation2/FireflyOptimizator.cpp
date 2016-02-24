@@ -3,7 +3,7 @@
 //
 
 #include "FireflyOptimizator.h"
-#include "../../SegmentationEvaluator.h"
+
 
 FireflyOptimizator::FireflyOptimizator( QString imagePath,  QString imageXml, float threshold, int MaxGenerations, int PopulationSize, float gamma)
 : MaxGenerations(MaxGenerations), PopulationSize(PopulationSize), imagePath(imagePath) , imageXml(imageXml), gamma(gamma),threshold(threshold)
@@ -62,153 +62,169 @@ pair<Segmentation,double> FireflyOptimizator::getBestOverall() {
     return generationRank[0];
 }
 
+void FireflyOptimizator::startGeneration()
+{
+
+    int idx_ffI =0;
+    vector<Segmentation>::iterator ffI;
+    for( ffI = population.begin(),idx_ffI=0; ffI != population.end(); idx_ffI++,ffI++)
+    {
+
+        markers[idx_ffI] = ffI->matrixAdj;
+        //cout<<markers[i].size()<<endl;
+        ranks[idx_ffI] =  ranker.evaluate(ffI->getRegions(),&regions);
+        generationRank.push_back(make_pair( *ffI, ranks[idx_ffI]));
+
+    }
+}
+
+void FireflyOptimizator::computeFirefly(Segmentation ffI, int idx_ffI, int verbose = 0)
+{
+    if(verbose >=1 ) {
+        cout << "------------------------------" << endl;
+        cout << "Starting " << idx_ffI << endl;
+    }
+
+    double rank1 = ranks[idx_ffI];
+    int j = 0,idx_ffJ =0 ;
+
+    vector<Segmentation>::iterator ffJ;
+
+
+    for( ffJ = population.begin(),idx_ffJ=0; ffJ != population.end();idx_ffJ++,ffJ++) {
+
+        if (idx_ffI == idx_ffJ) {
+            j++;
+            continue;
+        }
+
+        double rank2 = ranks[idx_ffJ];
+
+        if(verbose >=2 )
+            cout << "\tComparing " << idx_ffI << " with " << j << " (" << rank1 << " x " << rank2 << " ) ";
+
+        if (rank2 > rank1) {
+
+            double distance = getDistance(ffI, *ffJ);
+            double amount = beta * exp(-gamma * distance * distance);
+
+            if(verbose >= 3)
+              cout << "  -  Dis: " << distance << " It: " << amount;
+
+            ffI.matrixAdj = ffI.interpolateMatrix(*ffJ, amount);
+
+            j++;
+
+        }
+        else
+        {  if(verbose >=3 )
+             cout<<" - "<<idx_ffI << " greater, no update.";
+        }
+        //cout<<endl;
+    }
+
+
+}
+
+void FireflyOptimizator::updateGeneration()
+{
+    vector<Segmentation>::iterator ffI;
+    int idx_ffI =0;
+
+    for( ffI = population.begin(),idx_ffI=0; ffI != population.end(); idx_ffI++,ffI++)
+    {
+        *ffI = Segmentation(imagePath,markers[idx_ffI],threshold,listaCor);//ranks[idx_ffI] =  ranker.evaluate(&ffI->getRegions(),&regions);
+
+
+    }
+}
+
+void FireflyOptimizator::finishGeneration()
+{
+    rankGeneration();
+
+    pair<Segmentation,double> r = getGenerationBest();
+
+    imshow("generationBest",r.first.getMask());
+    waitKey(1);
+
+    generationBest.push_back(r);
+    cout<<" BEST of " << gen<< ": "<<r.second<<endl;
+    cout<<">>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<-"<<endl;
+    generationRank.clear();
+    generationRanked = false;
+
+}
+
+void  FireflyOptimizator::startClock()
+{
+    begin = clock();
+}
+void  FireflyOptimizator::endClock()
+{
+    end = clock();
+    elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+}
+
 
 void FireflyOptimizator::run() {
 
-    bool debug = false,debug2=true;
     optmized = false;
-    vector<Segmentation>::iterator ffI,ffJ;
-    SegmentationEvaluator ranker;
 
-    double beta = 1.0;
-    int i=0,j=0;
-    clock_t begin,end;
-    double elapsed_secs;
-    vector< double > ranks;
+
+    beta = 1.0;
+
+    ranks.clear();
     ranks.resize(population.size());
-    vector< Matrix > markers;
+    markers.clear();
     markers.resize(population.size());
-    int idx_ffI =0, idx_ffJ =0;
+
+    vector<Segmentation>::iterator ffI;
+    int idx_ffI =0;
 
 
-    for (int gen = 0; gen < MaxGenerations; gen++)
+    for (gen = 1; gen <= MaxGenerations; gen++)
     {
         cout<<">>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<"<<endl;
         cout<<"GENERATION "<<gen<<endl;
 
-        for( ffI = population.begin(),idx_ffI=0; ffI != population.end(); idx_ffI++,ffI++)
-        {
+        cout<< "Starting generation. Updating population ";
+        startClock();
 
-            markers[idx_ffI] = ffI->matrixAdj;
-            //cout<<markers[i].size()<<endl;
-            ranks[idx_ffI] =  ranker.evaluate(ffI->getRegions(),&regions);
-            generationRank.push_back(make_pair( *ffI, ranks[idx_ffI]));
+        startGeneration();
 
-        }
+        endClock();
+        cout << " - end ( "<<  elapsed_secs<< " sec )" << endl;
 
         for( ffI = population.begin(),idx_ffI=0; ffI != population.end(); idx_ffI++,ffI++)
         {
-            if(debug) {
-                cout << "------------------------------" << endl;
-                cout << "Starting " << i << endl;
-            }
-            //cout << "Starting " << i ;
-            begin = clock();
 
-            double rank1 = ranks[idx_ffI];//ranker.evaluate(&ffI->getRegions(),&regions);
+            startClock();
 
-            if(debug2)
-                imshow(to_string(long(&(*ffI))),ffI->getMask());
+            computeFirefly(*ffI,idx_ffI);
 
-            if(debug)
-                cout<<"Evaluation of "<<i<<": "<<rank1<<endl;
-
-
-
-            for( ffJ = population.begin(),idx_ffJ=0; ffJ != population.end();idx_ffJ++,ffJ++) {
-                if (ffI == ffJ) {
-                    j++;
-                    continue;
-                }
-
-                if (debug2)
-                    imshow(to_string(long(&(*ffJ))), ffJ->getMask());
-
-                if (debug)
-                    cout << " comparing with " << j << endl;
-
-                //SegmentationEvaluator ranker2;
-
-                double rank2 = ranks[idx_ffJ];//ranker.evaluate(&ffJ->getRegions(), &regions);
-
-                if (debug)
-                    cout << " Evaluation of" << j << ": " << rank2 << endl << endl;
-                j++;
-
-                //cout << "\tComparing " << i << " with " << j << " (" << rank1 << " x " << rank2 << " ) ";
-                if (rank2 > rank1) {
-                    //cout<<" a "<< markers[idx_ffI].size()<<endl;
-
-                    //Matrix tempJ = markers[idx_ffJ];
-                    //Matrix tempI = markers[idx_ffI];
-
-                    //vector< pair< Point2i , Point2i > >  pairs = findMatch(tempJ, tempI);
-                    double distance = getDistance(*ffI, *ffJ);
-                    double amount = beta * exp(-gamma * distance * distance);
-
-                    //cout << "  -  Dis: " << distance << " It: " << amount;
-
-                    if (debug) {
-                        // showPoints(markers[idx_ffJ], markers[idx_ffI]);
-                        waitKey(0);
-                    }
-                    //markers[idx_ffI] = moveToward(pairs,amount);
-
-                    markers[idx_ffI] = ffI->interpolateMatrix(*ffJ, amount);
-
-                    //cout<<" a "<< markers[idx_ffI].size()<<endl;
-
-                    if (debug2)
-                        imshow(to_string(long(&(*ffI))), ffI->getMask());
-                    if (debug) {
-                        //showPoints(markers[idx_ffJ], markers[idx_ffI]);
-                        waitKey(100);
-                    }
-
-                }
-                else
-                { //cout<<" - "<<i << " greater, no update.";
-                    }
-                //cout<<endl;
-            }
-            end = clock();
-
-            cout << " - end ( "<<  double(end - begin) / CLOCKS_PER_SEC<< " sec )" << endl;
-            if(debug)
-                cout<<"------------------------------"<<endl;
-            j=0;
-            i++;
+            endClock();
+            cout << " - end ( "<<  elapsed_secs<< " sec )" << endl;
 
 
         }
-        cout<< "Generation ready. Updating population ";
-        for( ffI = population.begin(),idx_ffI=0; ffI != population.end(); idx_ffI++,ffI++)
-        {
-            *ffI = Segmentation(imagePath,markers[idx_ffI],threshold,listaCor);//ranks[idx_ffI] =  ranker.evaluate(&ffI->getRegions(),&regions);
+        cout<< "Generation done. Updating population ";
+        startClock();
+
+        updateGeneration();
+
+        endClock();
+        cout<< " - OK "<<" ( "<<  elapsed_secs << " sec )" << endl;;
 
 
-            //cout<<ffI->getRegions().size()<<endl;
+        finishGeneration();
 
-        }
-        cout<< " - OK "<<endl;
-
-
-
-        i=0;
-
-        rankGeneration();
-        pair<Segmentation,double> r = getGenerationBest();
-        imshow("generationBest",r.first.getMask());
-        waitKey(1);
-        generationBest.push_back(r);
-        cout<<" BEST of " << gen<< ": "<<r.second<<endl;
-        cout<<">>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<-"<<endl;
-        generationRank.clear();
-        generationRanked = false;
     }
-    cout<<"result "<<(generationBest.end()-1)->second<<endl;
+
+    cout<<"Final result "<<(generationBest.end()-1)->second<<endl;
+
     optmized = true;
-    waitKey(5000);
+
 }
 
 

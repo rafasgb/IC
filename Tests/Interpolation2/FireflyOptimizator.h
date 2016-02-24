@@ -16,7 +16,7 @@
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/highgui.hpp"
 #include <iostream>
-
+#include "../../SegmentationEvaluator.h"
 #include "../../SegmentedImage.h"
 #include "Segmentation.h"
 
@@ -33,6 +33,20 @@ public:
     pair<Segmentation,double> getBestOverall();
 
 private:
+    vector< double > ranks;
+    vector< Matrix > markers;
+    double beta = 1.0;
+    int gen;
+    void startGeneration();
+    void  endClock();
+    void  startClock();
+    clock_t begin,end;
+    double elapsed_secs;
+
+    void computeFirefly(Segmentation , int , int );
+    void updateGeneration();
+    void finishGeneration();
+    SegmentationEvaluator ranker;
     vector<  Vec3b* > listaCor;
     Segmentation groundTruth;
     QList<Region> regions;

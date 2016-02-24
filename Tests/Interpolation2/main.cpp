@@ -29,7 +29,40 @@ bool DEBUG = true ;
 using namespace cv;
 using namespace std;
 
-int main()
+int main() {
+
+    char* filename = (char*)"/Users/zulli/ClionProjects/Watershed/sun.jpg";
+    QString f(filename);
+    vector<  Vec3b* > listaCor = vector<Vec3b*>(0);
+    srand (time(NULL));
+
+    float t = 0.25;
+
+
+    Segmentation *vec[4];
+    for (int img = 1; img <= 4; img++)
+    {
+        string flm = "/Users/zulli/Documents/exp/Quadrantes/"+to_string(img)+".png";
+        Mat mask = imread(flm.c_str());
+
+        vec[img-1] = new Segmentation(QString(flm.c_str()),mask,t,listaCor);
+        vec[img-1]->showImageMask("mask : "+to_string(img));
+    }
+    Segmentation atual(QString("/Users/zulli/Documents/exp/Quadrantes/1.png"), t,listaCor);
+    int num = 10;
+    float it = 0.05;
+    for(int i=0; i<num; i++) {
+        for (int img = 0; img < 4; img++)
+        {
+            atual = atual.interpolate(*vec[img],it);
+            atual.showImageMask("img "+to_string(img)+" it "+to_string(i));
+            waitKey(100);
+
+        }
+    }
+}
+
+int main3()
 {
     char* filename = (char*)"/Users/zulli/ClionProjects/Watershed/sun.jpg";
     QString f(filename);
