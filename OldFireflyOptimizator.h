@@ -16,6 +16,7 @@
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/highgui.hpp"
 #include <iostream>
+#include <qstring.h>
 #include "WatershedImage.h"
 #include "SegmentedImage.h"
 

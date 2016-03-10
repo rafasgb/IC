@@ -13,7 +13,8 @@ FireflyOptimizator::FireflyOptimizator( QString imagePath,  QString imageXml, fl
     listaCor = vector<Vec3b*>(0);
     groundTruth = Segmentation(im2,threshold,listaCor);
 
-    regions = *groundTruth.getRegions();
+    //regions = *groundTruth.getRegions();
+
     init();
 }
 
@@ -72,13 +73,15 @@ void FireflyOptimizator::startGeneration()
 
         markers[idx_ffI] = ffI->matrixAdj;
         //cout<<markers[i].size()<<endl;
-        ranks[idx_ffI] =  ranker.evaluate(ffI->getRegions(),&regions);
+        double evo =  ranks[idx_ffI];
+        ranks[idx_ffI] =  ranker.evaluate(&(*ffI), &groundTruth);
+        cout<<"Rank of "<<idx_ffI<<": "<<ranks[idx_ffI]<<" evolution: "<<ranks[idx_ffI]-evo<<endl;
         generationRank.push_back(make_pair( *ffI, ranks[idx_ffI]));
 
     }
 }
 
-void FireflyOptimizator::computeFirefly(Segmentation ffI, int idx_ffI, int verbose = 0)
+void FireflyOptimizator::computeFirefly(Segmentation ffI, int idx_ffI, int verbose = 3)
 {
     if(verbose >=1 ) {
         cout << "------------------------------" << endl;
@@ -133,6 +136,7 @@ void FireflyOptimizator::updateGeneration()
 
     for( ffI = population.begin(),idx_ffI=0; ffI != population.end(); idx_ffI++,ffI++)
     {
+
         *ffI = Segmentation(imagePath,markers[idx_ffI],threshold,listaCor);//ranks[idx_ffI] =  ranker.evaluate(&ffI->getRegions(),&regions);
 
 

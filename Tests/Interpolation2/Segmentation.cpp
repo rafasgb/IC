@@ -51,7 +51,7 @@ void Segmentation::init()
 
     //Mat out(a.rows/4, a.cols/4, CV_8UC3);
     Mat out;
-    resize(a, out, Size(), 1.0,1.0);
+    resize(a, out, Size(), 0.25,0.25);
 
     this->image = QImageCV(out);
 
@@ -67,6 +67,10 @@ void Segmentation::init()
     color.resize(width*height);
 
     size = width * height;
+
+    idRegiao = vector<Vec3b>(size,Vec3b(-1,-1,-1));
+    notas = map<int,double >();
+    regions = map<int,Region >();
     //cout << width << " " << height << " " << size << endl;
 
 
@@ -130,7 +134,7 @@ void Segmentation::makeRegions(Mat m) {
 
 
                 if(cor == corViz)
-                    setWeight(i,k,1.1*threshold);
+                    setWeight(i,k,1.0);//2*threshold);
                 else
                     setWeight(i,k,0.0);
 
@@ -188,6 +192,8 @@ void Segmentation::makeMask()
     {
         if(i>=1)
         {
+
+
             if(listaCor.size() > corIdx)
             {
                 if(listaCor[corIdx] == NULL)
@@ -204,32 +210,39 @@ void Segmentation::makeMask()
             // listaCor[corIdx] = Vec3b(rand()%254+1,rand()%254+1,rand()%254+1);
 
 
-            Vec3b * cor = (listaCor[corIdx]);
-            corIdx++;
-            //cout<<"Connected component "<<i-1<<" :";
+            Vec3b * cor = listaCor[corIdx];
 
+
+
+            Mat temp(mask.size(),CV_8UC1);
+            temp = Scalar::all(0);
+            //cout<<"Connected component "<<i-1<<" :";
+            int sz = 0;
             for(int i=0;i<size;i++)
             {
-                if(color[i]=='b'){
+                if(color[i]=='b')
+                {
+                    idRegiao[i] = *cor;
+
                     int x=i%width,y=i/width;
                     mask.at<Vec3b>(x,y)= *cor;
-
+                    temp.at<uchar>(x,y) = 255;
+                    sz++;
                     color[i]='z';
                 }
             }
 
-            Mat temp(mask.size(),CV_8UC1);
 
-            temp = Scalar::all(0);
-            inRange(mask, *cor, *cor, temp);
+
+
 
             Region r(&image, temp);
-            if (!r.getMask().getBoundary().isEmpty()) {
-                    regions <<r;
-
-
+            if(sz>0)
+            {
+                corIdx++;
+                notas[cor->val[0]+cor->val[1]+cor->val[2]] = 0.0;
+                regions[cor->val[0]+cor->val[1]+cor->val[2]] = r;
             }
-
 
 
             //cout<<"\n";
@@ -342,53 +355,56 @@ Segmentation Segmentation::interpolate(Segmentation objetivo, float amount)
     return Segmentation(file,novo,threshold,listaCor);
 }
 
+void Segmentation::interpolatePixel(Segmentation *objetivo, Matrix * novo, int i, int vizinho, float amount)
+{
+    Vec3b corP1 = objetivo->idRegiao[i];
+    double nota1 = objetivo->notas[corP1.val[0]+corP1.val[1]+corP1.val[2]];
+
+    Vec3b corP2 = objetivo->idRegiao[vizinho];
+    double nota2 = objetivo->notas[corP2.val[0]+corP2.val[1]+corP2.val[2]];
+
+    double notaFinal = (nota1>nota2)?nota1:nota2;
+
+    float w1 = matrixAdj[Index(i, vizinho)];
+
+    float w2 = objetivo->matrixAdj[Index(i, vizinho)];
+
+    float am = amount;// / (1 + ( w2-w1)*( w2-w1));
+    double dif = (w2 - w1) * am * notaFinal;
+
+    float peso = (w1+w2)/2.0;
+    // cout<<i<<" "<<j<<" "<<w1<<" "<<w2<<""<<endl;
+    //setWeight(&novo, i, down, peso);
+    setWeight(novo, i, vizinho, w1 + dif);
+}
+
+
 Matrix Segmentation::interpolateMatrix(Segmentation objetivo, float amount)
 {
 
     Matrix novo;
     for(int i=0;i<size;i++) {
 
+
+
         int top = (i - width) < 0 ? -1 : i - width;
         int down = (i + width) >= width * height ? -1 : i + width;
         int left = (i - 1) < 0 ? -1 : i - 1;
         int right = (i + 1) >= height * width ? -1 : i + 1;
-        float w1 = 0, w2 = 0, dif = 0;
+        float w1 = 0, w2 = 0, dif = 0, am,peso;
         if (down != -1) {
-            w1 = matrixAdj[Index(i, down)];
-            w2 = objetivo.matrixAdj[Index(i, down)];
-
-            dif = (w2 - w1) * amount;
-            // cout<<i<<" "<<j<<" "<<w1<<" "<<w2<<""<<endl;
-            setWeight(&novo, i, down, w1 + dif);
+            interpolatePixel(&objetivo,&novo,i,down,amount);
         }
 
         if (right != -1) {
-
-            w1 = matrixAdj[Index(i, right)];
-            w2 = objetivo.matrixAdj[Index(i, right)];
-
-            dif = (w2 - w1) * amount;
-            // cout<<i<<" "<<j<<" "<<w1<<" "<<w2<<""<<endl;
-            setWeight(&novo, i, right, w1 + dif);
+            interpolatePixel(&objetivo,&novo,i,right,amount);
         }
 
         if (top != -1) {
-            w1 = matrixAdj[Index(i, top)];
-            w2 = objetivo.matrixAdj[Index(i, top)];
-
-            dif = (w2 - w1) * amount;
-            // cout<<i<<" "<<j<<" "<<w1<<" "<<w2<<""<<endl;
-            setWeight(&novo, i, top, w1 + dif);
-
+            interpolatePixel(&objetivo,&novo,i,top,amount);
         }
         if(left != -1) {
-
-            w1 = matrixAdj[Index(i, left)];
-            w2 = objetivo.matrixAdj[Index(i, left)];
-
-            dif = (w2 - w1) * amount;
-            // cout<<i<<" "<<j<<" "<<w1<<" "<<w2<<""<<endl;
-            setWeight(&novo, i, left, w1 + dif);
+            interpolatePixel(&objetivo,&novo,i,left,amount);
         }
 
 
@@ -465,7 +481,7 @@ void Segmentation::showImageMask(const string s)
 
 
 
-QList<Region> * Segmentation::getRegions()
+map<int,Region> * Segmentation::getRegions()
 {
     return &regions;
 }

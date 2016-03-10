@@ -16,6 +16,7 @@
 #ifndef WATERSHED_SEGMENTATIONEVALUATOR_H
 #define WATERSHED_SEGMENTATIONEVALUATOR_H
 
+#include "Tests/Interpolation2/Segmentation.h"
 
 class SegmentationEvaluator {
 
@@ -28,7 +29,7 @@ private:
 public:
     SegmentationEvaluator(){};
 
-    double evaluate(QList<Region> *regionsPR, QList<Region>* regionsGT);
+    double evaluate(Segmentation *pr, Segmentation *gt);
 
 
 

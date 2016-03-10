@@ -32,9 +32,12 @@ typedef map<Index, float> Matrix;
 class Segmentation {
 private:
 
-    QList<Region> regions;
+
     vector<char> color;
     vector<Vec3b*> listaCor;
+
+
+
     RNG rng;
 
     //vector<vector< float>> matrixAdj;
@@ -45,7 +48,9 @@ private:
     Mat mask;
     float threshold;
 public:
-
+    map<int,Region> regions;
+    map<int,double> notas;
+    vector<Vec3b> idRegiao;
     Matrix matrixAdj;
     int width, height;
     int size;
@@ -79,7 +84,9 @@ public:
     void setWeight(unsigned int, unsigned int ,float);
     float findWeight(unsigned int , unsigned int );
     Mat getMask();
-    QList<Region> *getRegions();
+    map<int,Region> *getRegions();
+
+    void interpolatePixel(Segmentation *objetivo, Matrix * novo, int i, int vizinho, float amount);
 
 };
 

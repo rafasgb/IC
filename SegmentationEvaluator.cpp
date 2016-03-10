@@ -78,26 +78,30 @@ double SegmentationEvaluator::evaluatePair(Region *rPR,Region *rGT,int i)
 }
 
 
-double SegmentationEvaluator::evaluate(QList<Region> *regionsPR, QList<Region>* regionsGT)
+double SegmentationEvaluator::evaluate(Segmentation *pr, Segmentation *gt)
 {
     int i=0;
     double maxEvaluation;
     double finalEvaluation = 0.0;
 
-    for( Region rPR : *regionsPR) {
-        maxEvaluation = -100;
+    for( auto& pPR : pr->regions) {
+
+        Region rPR = pPR.second;
+
+        maxEvaluation = 0;
 
         //imshow("alo",rPR.getMask());
 
 
         i++;
 
-        for(Region rGT : *regionsGT)
+        for(auto& pGT : gt->regions)
         {
+            Region rGT = pGT.second;
 
             bool intersects = rPR.getBoundaryRect().intersects(rGT.getBoundaryRect());
             //bool intersects = rPR.getMask().getBoundary().intersected(rGT.getMask().getBoundary()).isEmpty();
-           // cout<<intersects<<endl;
+            //cout<<intersects;
             if(intersects)
             {
                 double ev = evaluatePair(&rPR,&rGT,i);
@@ -110,10 +114,11 @@ double SegmentationEvaluator::evaluate(QList<Region> *regionsPR, QList<Region>* 
         }
         //cout<<maxEvaluation<<endl;
         finalEvaluation += maxEvaluation;
+        pr->notas[pPR.first] = maxEvaluation;
         //evaluation.insert(evaluation.end(),make_pair(rPR,maxEvaluation));
     }
 
-    return finalEvaluation;
+    return finalEvaluation/(double)i;
 
 
 
